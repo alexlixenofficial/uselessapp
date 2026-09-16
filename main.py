@@ -1,66 +1,55 @@
 import os
-import json
-import random
-import urllib.request
-from flask import Flask, jsonify, request
+from flask import Flask, render_template_string, jsonify, request
 
 app = Flask(__name__)
 
-SYSTEM_INSTRUCTION = (
-    "You are an AI living inside a completely useless app. "
-    "Every time the user taps the button, give a 1-sentence sarcastic, "
-    "passive-aggressive, or hilariously unhelpful response. "
-    "Keep it under 15 words. Never offer real help."
-)
-
-FALLBACK_SNARKS = [
+# Sarcastic fallback messages
+SNARK_RESPONSES = [
     "Fascinating tap. Truly groundbreaking.",
     "Is this really what you're doing right now?",
     "You clicked a button. Here is your invisible trophy.",
+    "Another tap closer to ultimate enlightenment. Or not.",
     "Your dedication to doing nothing is inspiring.",
-    "Another tap. Another second gone forever."
+    "Error 404: Purpose not found."
 ]
 
-def query_gemini(count):
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        return None
-    
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
-    payload = {
-        "contents": [{"parts": [{"text": f"The user has tapped the useless button {count} times."}]}],
-        "system_instruction": {"parts": [{"text": SYSTEM_INSTRUCTION}]}
-    }
-    
-    try:
-        req = urllib.request.Request(
-            url, 
-            data=json.dumps(payload).encode('utf-8'), 
-            headers={'Content-Type': 'application/json'}
-        )
-        with urllib.request.urlopen(req, timeout=5) as response:
-            result = json.loads(response.read().decode('utf-8'))
-            return result['candidates'][0]['content']['parts'][0]['text'].strip()
-    except Exception:
-        return None
+MANIFEST_DATA = {
+    "name": "Productivity Zero",
+    "short_name": "ProdZero",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0d0d0d",
+    "theme_color": "#0d0d0d",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "https://via.placeholder.com/512.png?text=ZERO",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
 
 @app.route('/')
-def index():
-    with open("index.html", "r") as f:
-        return f.read()
+def home():
+    with open('index.html', 'r', encoding='utf-8') as f:
+        html_content = f.read()
+    return render_template_string(html_content)
 
-@app.route('/api/tap')
-def trigger_tap():
-    count = request.args.get('count', '1')
-    message = query_gemini(count)
-    
-    if not message:
-        message = random.choice(FALLBACK_SNARKS)
-        
-    return jsonify({"message": message})
-
-if __name__ == '__main__':
-    app.run(port=8000, debug=True)
 @app.route('/manifest.json')
 def manifest():
-    return send_file('manifest.json')
+    return jsonify(MANIFEST_DATA)
+
+@app.route('/api/tap')
+def tap():
+    try:
+        count = int(request.args.get('count', 0))
+    except ValueError:
+        count = 0
+    
+    msg_index = count % len(SNARK_RESPONSES)
+    return jsonify({"message": SNARK_RESPONSES[msg_index]})
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
