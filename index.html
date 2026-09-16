@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nothing App</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --card: #181818;
+      --border: #282828;
+      --accent: #ffffff;
+      --sub: #777777;
+    }
+
+    .light-theme {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --border: #e0e0e0;
+      --accent: #111111;
+      --sub: #888888;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--accent);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 100vh;
+      padding: 30px 20px;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .nav {
+      width: 100%;
+      max-width: 350px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--sub); }
+    
+    .theme-toggle {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.75rem;
+    }
+
+    .center { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 350px; }
+
+    .btn {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--card), var(--bg));
+      border: 2px solid var(--border);
+      color: var(--accent);
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.1s ease;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .btn:active { transform: scale(0.90); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      width: 100%;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .count { font-size: 2.8rem; font-weight: 800; margin: 5px 0; }
+    .response { font-size: 0.95rem; color: var(--sub); min-height: 45px; margin-top: 10px; font-style: italic; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .mini-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .mini-card-title { font-size: 0.65rem; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
+    .mini-card-val { font-size: 1.1rem; font-weight: 700; margin-top: 4px; }
+
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      width: 100%;
+    }
+
+    .footer { font-size: 0.7rem; color: var(--sub); }
+  </style>
+</head>
+<body>
+
+  <div class="nav">
+    <div class="title">Productivity Zero</div>
+    <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
+  </div>
+
+  <div class="center">
+    <button class="btn" onclick="tap()">TAP</button>
+
+    <div class="card">
+      <div style="font-size: 0.7rem; color: var(--sub); letter-spacing: 1px;">TOTAL TIME WASTED</div>
+      <div class="count" id="c">0</div>
+      <div class="response" id="r">Tap to waste another moment.</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="mini-card">
+        <div class="mini-card-title">Daily Streak</div>
+        <div class="mini-card-val" id="streak">1 Day</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-card-title">Rank</div>
+        <div class="mini-card-val" id="rank">Novice</div>
+      </div>
+    </div>
+
+    <button class="action-btn" onclick="shareStats()">Share Disappointment</button>
+  </div>
+
+  <div class="footer">v1.2 • Digital Detox Tool</div>
+
+  <script>
+    let count = parseInt(localStorage.getItem('taps') || '0');
+    let isLight = localStorage.getItem('theme') === 'light';
+
+    if (isLight) document.body.classList.add('light-theme');
+    updateDisplay();
+
+    // Audio context for tap sound effect
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTapSound() {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    async function tap() {
+      playTapSound();
+      if (navigator.vibrate) navigator.vibrate(30);
+
+      count++;
+      localStorage.setItem('taps', count);
+      updateDisplay();
+
+      const r = document.getElementById('r');
+      r.style.opacity = '0.4';
+
+      try {
+        const res = await fetch('/api/tap?count=' + count);
+        const data = await res.json();
+        r.innerText = '"' + data.message + '"';
+      } catch (e) {
+        r.innerText = '"You broke nothing."';
+      }
+      r.style.opacity = '1';
+    }
+
+    function updateDisplay() {
+      document.getElementById('c').innerText = count;
+      
+      // Dynamic Ranks based on tap count
+      let rank = "Novice";
+      if (count > 50) rank = "Slacker";
+      if (count > 200) rank = "Procrastinator";
+      if (count > 500) rank = "Master of None";
+      if (count > 1000) rank = "Ascended";
+      document.getElementById('rank').innerText = rank;
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('light-theme');
+      const current = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+      localStorage.setItem('theme', current);
+    }
+
+    function shareStats() {
+      const rank = document.getElementById('rank').innerText;
+      const msg = `I reached rank '${rank}' by tapping a useless button ${count} times.`;
+      if (navigator.share) {
+        navigator.share({ title: 'Nothing App', text: msg });
+      } else {
+        alert(msg);
+      }
+    }
+  </script>
+</body>
+</html>
