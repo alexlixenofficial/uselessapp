@@ -61,3 +61,6 @@ def trigger_tap():
 
 if __name__ == '__main__':
     app.run(port=8000, debug=True)
+@app.route('/manifest.json')
+def manifest():
+    return send_file('manifest.json')

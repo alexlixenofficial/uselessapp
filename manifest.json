@@ -1,0 +1,17 @@
+{
+  "name": "Productivity Zero",
+  "short_name": "ProdZero",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#0d0d0d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/512.png?text=ZERO",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
