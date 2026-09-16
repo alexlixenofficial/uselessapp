@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Do Nothing App</title>
-  <link rel="manifest" href="/manifest.json">
+  <title>Productivity Zero</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     :root {
       --bg: #0d0d0d;
@@ -12,6 +12,7 @@
       --border: #282828;
       --accent: #ffffff;
       --sub: #777777;
+      --rage: #ff3333;
     }
 
     .light-theme {
@@ -35,90 +36,55 @@
       padding: 30px 20px;
       box-sizing: border-box;
       transition: background 0.3s, color 0.3s;
+      user-select: none;
     }
 
-    .nav {
-      width: 100%;
-      max-width: 350px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
+    .nav { width: 100%; max-width: 350px; display: flex; justify-content: space-between; align-items: center; }
     .title { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--sub); }
     
     .theme-toggle {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--accent);
-      padding: 6px 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 0.75rem;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--accent); padding: 6px 12px; border-radius: 12px; cursor: pointer; font-size: 0.75rem;
     }
 
     .center { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 350px; }
 
     .btn {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
+      width: 160px; height: 160px; border-radius: 50%;
       background: linear-gradient(145deg, var(--card), var(--bg));
-      border: 2px solid var(--border);
-      color: var(--accent);
-      font-size: 1.1rem;
-      font-weight: 700;
-      cursor: pointer;
-      outline: none;
-      transition: transform 0.1s ease;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      border: 2px solid var(--border); color: var(--accent);
+      font-size: 1.2rem; font-weight: 800; cursor: pointer; outline: none;
+      transition: transform 0.08s ease, border-color 0.2s;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
     }
 
-    .btn:active { transform: scale(0.90); }
+    .btn:active { transform: scale(0.88); }
 
     .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 20px;
-      width: 100%;
-      text-align: center;
-      box-sizing: border-box;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 18px; padding: 20px; width: 100%; text-align: center; box-sizing: border-box;
     }
 
-    .count { font-size: 2.8rem; font-weight: 800; margin: 5px 0; }
+    .count { font-size: 3rem; font-weight: 800; margin: 5px 0; }
     .response { font-size: 0.95rem; color: var(--sub); min-height: 45px; margin-top: 10px; font-style: italic; }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      width: 100%;
-    }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
 
-    .mini-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      text-align: center;
-    }
-
+    .mini-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
     .mini-card-title { font-size: 0.65rem; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
     .mini-card-val { font-size: 1.1rem; font-weight: 700; margin-top: 4px; }
 
     .action-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--accent);
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      width: 100%;
+      background: transparent; border: 1px solid var(--border);
+      color: var(--accent); padding: 12px 20px; border-radius: 20px;
+      cursor: pointer; font-size: 0.85rem; width: 100%; font-weight: 600;
     }
 
-    .footer { font-size: 0.7rem; color: var(--sub); }
+    .rage-mode { animation: flash 0.3s infinite alternate; }
+    @keyframes flash {
+      from { background: var(--bg); }
+      to { background: #330000; }
+    }
   </style>
 </head>
 <body>
@@ -129,44 +95,49 @@
   </div>
 
   <div class="center">
-    <button class="btn" onclick="tap()">TAP</button>
+    <button class="btn" id="mainBtn" onclick="tap()">DO NOT TAP</button>
 
     <div class="card">
-      <div style="font-size: 0.7rem; color: var(--sub); letter-spacing: 1px;">TOTAL TIME WASTED</div>
+      <div style="font-size: 0.7rem; color: var(--sub); letter-spacing: 1px;">WASTED TAPS</div>
       <div class="count" id="c">0</div>
-      <div class="response" id="r">Tap to waste another moment.</div>
+      <div class="response" id="r">Tap to begin doing nothing.</div>
     </div>
 
     <div class="stats-grid">
       <div class="mini-card">
-        <div class="mini-card-title">Daily Streak</div>
-        <div class="mini-card-val" id="streak">1 Day</div>
+        <div class="mini-card-title">Focus Status</div>
+        <div class="mini-card-val" id="idleStatus">Active</div>
       </div>
       <div class="mini-card">
-        <div class="mini-card-title">Rank</div>
+        <div class="mini-card-title">Current Rank</div>
         <div class="mini-card-val" id="rank">Novice</div>
       </div>
     </div>
 
-    <button class="action-btn" onclick="shareStats()">Share Disappointment</button>
+    <button class="action-btn" onclick="shareStats()">Flex Your Waste of Time</button>
   </div>
 
-  <div class="footer">v1.2 • Digital Detox Tool</div>
+  <div style="font-size: 0.7rem; color: var(--sub);">v2.0 • Ultimate Digital Detox</div>
 
   <script>
     let count = parseInt(localStorage.getItem('taps') || '0');
     let isLight = localStorage.getItem('theme') === 'light';
+    let tapTimes = [];
+    let idleTimer;
 
     if (isLight) document.body.classList.add('light-theme');
     updateDisplay();
+    resetIdleTimer();
 
-    // Audio context for tap sound effect
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
     function playTapSound() {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+      // Pitch raises slightly as count increases
+      const pitch = 150 + (count % 50) * 5;
+      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
       gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
       osc.connect(gain);
@@ -177,51 +148,69 @@
 
     async function tap() {
       playTapSound();
-      if (navigator.vibrate) navigator.vibrate(30);
+      if (navigator.vibrate) navigator.vibrate(25);
 
       count++;
       localStorage.setItem('taps', count);
-      updateDisplay();
-
+      
+      // Speed check for Rage Mode
+      const now = Date.now();
+      tapTimes.push(now);
+      tapTimes = tapTimes.filter(t => now - t < 1000);
+      
       const r = document.getElementById('r');
-      r.style.opacity = '0.4';
 
-      try {
-        const res = await fetch('/api/tap?count=' + count);
-        const data = await res.json();
-        r.innerText = '"' + data.message + '"';
-      } catch (e) {
-        r.innerText = '"You broke nothing."';
+      if (tapTimes.length > 5) {
+        document.body.classList.add('rage-mode');
+        r.innerText = '"ALERT: CALM DOWN. YOU ARE BEING TOO PRODUCTIVE!"';
+      } else {
+        document.body.classList.remove('rage-mode');
+        r.style.opacity = '0.4';
+        try {
+          const res = await fetch('/api/tap?count=' + count);
+          const data = await res.json();
+          r.innerText = '"' + data.message + '"';
+        } catch (e) {
+          r.innerText = '"You broke nothing."';
+        }
+        r.style.opacity = '1';
       }
-      r.style.opacity = '1';
+
+      // Milestones confetti
+      if (count === 10 || count === 69 || count === 100 || count === 500) {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
+      }
+
+      updateDisplay();
+      resetIdleTimer();
+    }
+
+    function resetIdleTimer() {
+      document.getElementById('idleStatus').innerText = "Tapping...";
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        document.getElementById('idleStatus').innerText = "Pure Nothingness 🧘";
+      }, 5000);
     }
 
     function updateDisplay() {
       document.getElementById('c').innerText = count;
-      
-      // Dynamic Ranks based on tap count
       let rank = "Novice";
-      if (count > 50) rank = "Slacker";
-      if (count > 200) rank = "Procrastinator";
-      if (count > 500) rank = "Master of None";
-      if (count > 1000) rank = "Ascended";
+      if (count > 25) rank = "Procrastinator";
+      if (count > 100) rank = "Time Master";
+      if (count > 300) rank = "Zen God";
       document.getElementById('rank').innerText = rank;
     }
 
     function toggleTheme() {
       document.body.classList.toggle('light-theme');
-      const current = document.body.classList.contains('light-theme') ? 'light' : 'dark';
-      localStorage.setItem('theme', current);
+      localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
     }
 
     function shareStats() {
-      const rank = document.getElementById('rank').innerText;
-      const msg = `I reached rank '${rank}' by tapping a useless button ${count} times.`;
-      if (navigator.share) {
-        navigator.share({ title: 'Nothing App', text: msg });
-      } else {
-        alert(msg);
-      }
+      const msg = `I reached rank '${document.getElementById('rank').innerText}' on Productivity Zero by doing absolutely nothing ${count} times.`;
+      if (navigator.share) navigator.share({ title: 'Productivity Zero', text: msg });
+      else alert(msg);
     }
   </script>
 </body>
