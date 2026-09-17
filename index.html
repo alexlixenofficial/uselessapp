@@ -1,220 +1,223 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="/manifest.json">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="NothingApp">
+    <link rel="manifest" href="/manifest.json">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Productivity Zero</title>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <title>Productivity Zero | Dashboard</title>
   <style>
     :root {
-      --bg: #0d0d0d;
-      --card: #181818;
-      --border: #282828;
+      --bg: #09090b;
+      --card-bg: #121215;
+      --border: #27272a;
       --accent: #ffffff;
-      --sub: #777777;
-      --rage: #ff3333;
-    }
-
-    .light-theme {
-      --bg: #f5f5f5;
-      --card: #ffffff;
-      --border: #e0e0e0;
-      --accent: #111111;
-      --sub: #888888;
+      --subtext: #71717a;
+      --highlight: #3f3f46;
     }
 
     body {
-      margin: 0;
-      background: var(--bg);
+      margin: 0; padding: 0;
+      background-color: var(--bg);
       color: var(--accent);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 100vh;
-      padding: 30px 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex; flex-direction: column; min-height: 100vh;
       box-sizing: border-box;
-      transition: background 0.3s, color 0.3s;
-      user-select: none;
     }
 
-    .nav { width: 100%; max-width: 350px; display: flex; justify-content: space-between; align-items: center; }
-    .title { font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--sub); }
-    
-    .theme-toggle {
-      background: transparent; border: 1px solid var(--border);
-      color: var(--accent); padding: 6px 12px; border-radius: 12px; cursor: pointer; font-size: 0.75rem;
+    /* Top Navigation Bar */
+    .navbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px 20px; border-bottom: 1px solid var(--border);
+      background: #000;
     }
+    .brand { font-weight: 700; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; }
+    .status-dot { height: 8px; width: 8px; background: #22c55e; border-radius: 50%; display: inline-block; margin-right: 6px; }
 
-    .center { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 350px; }
+    /* Dashboard Layout */
+    .main-container { padding: 20px; max-width: 500px; margin: 0 auto; width: 100%; box-sizing: border-box; }
 
-    .btn {
-      width: 160px; height: 160px; border-radius: 50%;
-      background: linear-gradient(145deg, var(--card), var(--bg));
-      border: 2px solid var(--border); color: var(--accent);
-      font-size: 1.2rem; font-weight: 800; cursor: pointer; outline: none;
-      transition: transform 0.08s ease, border-color 0.2s;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    /* Tab Controls */
+    .tab-bar {
+      display: flex; background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 4px; margin-bottom: 20px;
     }
+    .tab-btn {
+      flex: 1; padding: 10px; background: transparent; border: none;
+      color: var(--subtext); font-size: 0.8rem; font-weight: 600;
+      border-radius: 8px; cursor: pointer; transition: all 0.2s;
+    }
+    .tab-btn.active { background: var(--highlight); color: var(--accent); }
 
-    .btn:active { transform: scale(0.88); }
+    /* Tab Contents */
+    .tab-content { display: none; }
+    .tab-content.active { display: flex; flex-direction: column; gap: 15px; }
 
+    /* Cards & Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 18px; padding: 20px; width: 100%; text-align: center; box-sizing: border-box;
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px; text-align: center;
     }
+    .metric { font-size: 1.8rem; font-weight: 700; margin: 5px 0; }
+    .label { font-size: 0.7rem; color: var(--subtext); text-transform: uppercase; letter-spacing: 1px; }
 
-    .count { font-size: 3rem; font-weight: 800; margin: 5px 0; }
-    .response { font-size: 0.95rem; color: var(--sub); min-height: 45px; margin-top: 10px; font-style: italic; }
-
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-
-    .mini-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; }
-    .mini-card-title { font-size: 0.65rem; color: var(--sub); text-transform: uppercase; letter-spacing: 1px; }
-    .mini-card-val { font-size: 1.1rem; font-weight: 700; margin-top: 4px; }
+    /* Interactive Elements */
+    .tap-btn {
+      width: 100%; height: 110px; background: linear-gradient(145deg, #1f1f23, #141417);
+      border: 1px solid var(--border); border-radius: 16px; color: #fff;
+      font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: transform 0.1s;
+    }
+    .tap-btn:active { transform: scale(0.97); }
 
     .action-btn {
-      background: transparent; border: 1px solid var(--border);
-      color: var(--accent); padding: 12px 20px; border-radius: 20px;
-      cursor: pointer; font-size: 0.85rem; width: 100%; font-weight: 600;
+      width: 100%; padding: 12px; background: transparent;
+      border: 1px solid var(--border); border-radius: 10px;
+      color: var(--accent); font-size: 0.85rem; cursor: pointer;
     }
 
-    .rage-mode { animation: flash 0.3s infinite alternate; }
-    @keyframes flash {
-      from { background: var(--bg); }
-      to { background: #330000; }
+    /* Boss Key Overlay */
+    #panicScreen {
+      display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #fff; color: #000; font-family: monospace; font-size: 0.8rem;
+      padding: 20px; box-sizing: border-box; z-index: 9999;
     }
   </style>
 </head>
 <body>
 
-  <div class="nav">
-    <div class="title">Productivity Zero</div>
-    <button class="theme-toggle" onclick="toggleTheme()">Theme</button>
+  <div class="navbar">
+    <div class="brand">Productivity Zero</div>
+    <div style="font-size: 0.75rem; color: var(--subtext);">
+      <span class="status-dot"></span>System: Idle
+    </div>
   </div>
 
-  <div class="center">
-    <button class="btn" id="mainBtn" onclick="tap()">DO NOT TAP</button>
+  <div class="main-container">
 
-    <div class="card">
-      <div style="font-size: 0.7rem; color: var(--sub); letter-spacing: 1px;">WASTED TAPS</div>
-      <div class="count" id="c">0</div>
-      <div class="response" id="r">Tap to begin doing nothing.</div>
+    <!-- Navigation Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('main')">Core</button>
+      <button class="tab-btn" onclick="switchTab('analytics')">Analytics</button>
+      <button class="tab-btn" onclick="switchTab('tools')">Tools</button>
     </div>
 
-    <div class="stats-grid">
-      <div class="mini-card">
-        <div class="mini-card-title">Focus Status</div>
-        <div class="mini-card-val" id="idleStatus">Active</div>
+    <!-- TAB 1: CORE (THE MAIN BUTTON) -->
+    <div id="tab-main" class="tab-content active">
+      <div class="grid-2">
+        <div class="card">
+          <div class="label">Total Taps</div>
+          <div class="metric" id="tapCount">0</div>
+        </div>
+        <div class="card">
+          <div class="label">Time Wasted</div>
+          <div class="metric" id="timeCount">0s</div>
+        </div>
       </div>
-      <div class="mini-card">
-        <div class="mini-card-title">Current Rank</div>
-        <div class="mini-card-val" id="rank">Novice</div>
+
+      <button class="tap-btn" onclick="handleTap()">DO NOTHING</button>
+
+      <div class="card" style="min-height: 60px;">
+        <div class="label">AI Insight</div>
+        <div id="aiResponse" style="font-size: 0.85rem; color: #aaa; margin-top: 6px; font-style: italic;">
+          Tap to generate non-essential data.
+        </div>
       </div>
     </div>
 
-    <button class="action-btn" onclick="shareStats()">Flex Your Waste of Time</button>
+    <!-- TAB 2: ANALYTICS (DUMMY METRICS) -->
+    <div id="tab-analytics" class="tab-content">
+      <div class="card">
+        <div class="label">Procrastination Index</div>
+        <div class="metric" style="color: #ef4444;">99.4%</div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="label">Brain Capacity</div>
+          <div class="metric">12%</div>
+        </div>
+        <div class="card">
+          <div class="label">Focus Score</div>
+          <div class="metric">0/100</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: EXTRA TOOLS -->
+    <div id="tab-tools" class="tab-content">
+      <div class="card">
+        <div class="label" style="margin-bottom: 10px;">Executive Panic Switch</div>
+        <button class="action-btn" onclick="togglePanic()">Open Fake Excel Spreadsheet 🚨</button>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom: 10px;">Export Waste Certificate</div>
+        <button class="action-btn" onclick="shareStats()">Share Achievement</button>
+      </div>
+    </div>
+
   </div>
 
-  <div style="font-size: 0.7rem; color: var(--sub);">v2.0 • Ultimate Digital Detox</div>
+  <!-- Fake Spreadsheet Overlay -->
+  <div id="panicScreen" onclick="togglePanic()">
+    <strong>CONFIDENTIAL FINANCIAL AUDIT - Q3 2026</strong><br><br>
+    | Region | Projected | Actual | Variance |<br>
+    |--------|-----------|--------|----------|<br>
+    | EMEA   | $450,000  | $442K  | -1.7%    |<br>
+    | APAC   | $820,000  | $890K  | +8.5%    |<br><br>
+    <em>[Click anywhere to exit]</em>
+  </div>
 
   <script>
-    let count = parseInt(localStorage.getItem('taps') || '0');
-    let isLight = localStorage.getItem('theme') === 'light';
-    let tapTimes = [];
-    let idleTimer;
+    let count = parseInt(localStorage.getItem('useless_taps') || '0');
+    let seconds = parseInt(localStorage.getItem('useless_seconds') || '0');
 
-    if (isLight) document.body.classList.add('light-theme');
-    updateDisplay();
-    resetIdleTimer();
+    document.getElementById('tapCount').innerText = count;
+    document.getElementById('timeCount').innerText = seconds + 's';
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Track total idle time
+    setInterval(() => {
+      seconds++;
+      document.getElementById('timeCount').innerText = seconds + 's';
+      localStorage.setItem('useless_seconds', seconds);
+    }, 1000);
 
-    function playTapSound() {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      // Pitch raises slightly as count increases
-      const pitch = 150 + (count % 50) * 5;
-      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.05);
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById(`tab-${tabName}`).classList.add('active');
     }
 
-    async function tap() {
-      playTapSound();
-      if (navigator.vibrate) navigator.vibrate(25);
-
+    async function handleTap() {
+      if (navigator.vibrate) navigator.vibrate(40);
       count++;
-      localStorage.setItem('taps', count);
-      
-      // Speed check for Rage Mode
-      const now = Date.now();
-      tapTimes.push(now);
-      tapTimes = tapTimes.filter(t => now - t < 1000);
-      
-      const r = document.getElementById('r');
+      document.getElementById('tapCount').innerText = count;
+      localStorage.setItem('useless_taps', count);
 
-      if (tapTimes.length > 5) {
-        document.body.classList.add('rage-mode');
-        r.innerText = '"ALERT: CALM DOWN. YOU ARE BEING TOO PRODUCTIVE!"';
-      } else {
-        document.body.classList.remove('rage-mode');
-        r.style.opacity = '0.4';
-        try {
-          const res = await fetch('/api/tap?count=' + count);
-          const data = await res.json();
-          r.innerText = '"' + data.message + '"';
-        } catch (e) {
-          r.innerText = '"You broke nothing."';
-        }
-        r.style.opacity = '1';
+      const responseEl = document.getElementById('aiResponse');
+      try {
+        const res = await fetch(`/api/tap?count=${count}`);
+        const data = await res.json();
+        responseEl.innerText = `"${data.message}"`;
+      } catch (err) {
+        responseEl.innerText = '"You broke nothing."';
       }
-
-      // Milestones confetti
-      if (count === 10 || count === 69 || count === 100 || count === 500) {
-        confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
-      }
-
-      updateDisplay();
-      resetIdleTimer();
     }
 
-    function resetIdleTimer() {
-      document.getElementById('idleStatus').innerText = "Tapping...";
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => {
-        document.getElementById('idleStatus').innerText = "Pure Nothingness 🧘";
-      }, 5000);
-    }
-
-    function updateDisplay() {
-      document.getElementById('c').innerText = count;
-      let rank = "Novice";
-      if (count > 25) rank = "Procrastinator";
-      if (count > 100) rank = "Time Master";
-      if (count > 300) rank = "Zen God";
-      document.getElementById('rank').innerText = rank;
-    }
-
-    function toggleTheme() {
-      document.body.classList.toggle('light-theme');
-      localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+    function togglePanic() {
+      const panic = document.getElementById('panicScreen');
+      panic.style.display = panic.style.display === 'block' ? 'none' : 'block';
     }
 
     function shareStats() {
-      const msg = `I reached rank '${document.getElementById('rank').innerText}' on Productivity Zero by doing absolutely nothing ${count} times.`;
-      if (navigator.share) navigator.share({ title: 'Productivity Zero', text: msg });
-      else alert(msg);
+      const text = `Dashboard Update: I have wasted ${seconds}s and tapped ${count} times on Productivity Zero.`;
+      if (navigator.share) {
+        navigator.share({ title: 'Productivity Zero', text: text, url: window.location.href });
+      } else {
+        navigator.clipboard.writeText(text);
+        alert('Copied stats to clipboard!');
+      }
     }
   </script>
 </body>
