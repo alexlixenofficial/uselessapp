@@ -6,16 +6,16 @@ app = Flask(__name__)
 # Sarcastic fallback messages
 SNARK_RESPONSES = [
     "Fascinating tap. Truly groundbreaking.",
-    "Is this really what you're doing right now?",
-    "You clicked a button. Here is your invisible trophy.",
+    "Peak Unemployment",
+    "You clicked a button. That was a huge task.",
     "Another tap closer to ultimate enlightenment. Or not.",
     "Your dedication to doing nothing is inspiring.",
     "Error 404: Purpose not found."
 ]
 
 MANIFEST_DATA = {
-    "name": "Productivity Zero",
-    "short_name": "ProdZero",
+    "name": "Boradichalloo",
+    "short_name": "Zero Productivity",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#0d0d0d",
